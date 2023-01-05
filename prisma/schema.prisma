@@ -31,16 +31,17 @@ model activities {
 }
 
 model cabins {
-  id           BigInt   @default(autoincrement())
-  updatedAt    DateTime @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  utId         BigInt   @id
+  id           BigInt    @default(autoincrement())
+  updatedAt    DateTime  @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  utId         BigInt    @id
   visbookId    BigInt?
   bookingUrl   String?
   description  String?
   name         String
-  geometry     Json?    @db.Json
-  media        Json[]   @db.Json
-  openingHours Json[]   @db.Json
+  geometry     Json?     @db.Json
+  media        Json[]    @db.Json
+  openingHours Json[]    @db.Json
+  createdAt    DateTime? @default(now()) @db.Timestamptz(6)
 }
 
 model subscription_topics {
@@ -51,12 +52,12 @@ model subscription_topics {
 }
 
 model subscriptions {
-  id             BigInt    @id @default(autoincrement())
+  id             BigInt   @id @default(autoincrement())
   subscriberId   String
   subscriberType String
   topic          String?
-  createdAt      DateTime? @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime? @default(now()) @db.Timestamptz(6)
-  notifiedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @db.Timestamptz(6)
   type           String
+  notifiedAt     DateTime @default(now()) @db.Timestamptz(6)
 }

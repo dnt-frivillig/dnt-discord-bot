@@ -8,6 +8,8 @@ import { ConfigService } from '@nestjs/config';
 import Ajv from 'ajv/dist/jtd';
 import { ActivityData, ActivityDataSchema } from './activity.interface';
 import { Logger } from '@nestjs/common';
+import { DbService } from 'src/db/db.service';
+import { activities } from '@prisma/client';
 
 @Injectable()
 export class ActivityService implements OnModuleInit {
@@ -17,6 +19,7 @@ export class ActivityService implements OnModuleInit {
   constructor(
     private readonly configService: ConfigService,
     private readonly activityDatabaseService: ActivityDatabaseService,
+    private readonly dbService: DbService,
   ) {}
   async onModuleInit() {
     if (this.configService.get('NODE_ENV') === 'production') {
@@ -126,5 +129,11 @@ export class ActivityService implements OnModuleInit {
     this.logger.log(url);
     const response = await fetch(url);
     return await response.text();
+  }
+
+  public async getNewActivities(tripType: string, after: Date) {
+    return await this.dbService.prisma.$queryRaw<
+      activities[]
+    >`select * from "public"."activities" where ${tripType} ILIKE any("tripType") AND "createdAt" > ${after} order by "startsAt" asc`;
   }
 }

@@ -111,6 +111,31 @@ export class DiscordService implements OnModuleInit {
     await channel.send({ content: messageContent, embeds: [embed] });
   }
 
+  async sendMessageWithoutEmbed(channelId: string, messageContent: string) {
+    const channel = await this.client.channels.fetch(channelId);
+    if (!channel || !channel.isTextBased()) {
+      console.log('channel not found');
+      return false;
+    }
+
+    return await channel.send({ content: messageContent });
+  }
+
+  async sendDmWithEmbeds(
+    userId: string,
+    messageContent: string,
+    embeds: EmbedBuilder[],
+  ) {
+    await this.client.users.send(userId, {
+      content: messageContent,
+      embeds: embeds,
+    });
+  }
+
+  async sendDm(userId: string, messageContent: string) {
+    await this.client.users.send(userId, messageContent);
+  }
+
   async getChannels() {
     const guild = await this.client.guilds.fetch(this.guildId);
     const channels = await guild.channels.fetch();
@@ -119,5 +144,12 @@ export class DiscordService implements OnModuleInit {
         return { name: channel?.name, id };
       }),
     );
+  }
+
+  async createThreadFromMessage(message: Message, name: string) {
+    return await message.startThread({
+      name: name,
+      autoArchiveDuration: 60,
+    });
   }
 }

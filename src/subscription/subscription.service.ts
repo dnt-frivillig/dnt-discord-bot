@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, subscriptions } from '@prisma/client';
+import { Subscriber } from 'prisma/prisma.types';
 import { DbService } from 'src/db/db.service';
 
 @Injectable()
@@ -24,12 +25,27 @@ export class SubscriptionService {
     return true;
   }
 
-  public async getActivities(tripType: string, after: Date) {
-    return this.dbService.prisma.activities.findMany({
-      where: {
-        tripType: { has: tripType },
-        createdAt: { gt: after },
-      },
+  public async getSubscribers(): Promise<Subscriber[] | undefined> {
+    return this.dbService.prisma.subscriptions.groupBy({
+      by: ['subscriberType', 'subscriberId'],
     });
+  }
+
+  public async getSubscriptions(subscriberId: string) {
+    return this.dbService.prisma.subscriptions.findMany({
+      where: { subscriberId: subscriberId },
+    });
+  }
+
+  public async updateNotifiedAt(
+    subscriptions: subscriptions[],
+    notifiedAt: Date,
+  ) {
+    for (const subscription of subscriptions) {
+      await this.dbService.prisma.subscriptions.update({
+        where: { id: subscription.id },
+        data: { notifiedAt: notifiedAt },
+      });
+    }
   }
 }

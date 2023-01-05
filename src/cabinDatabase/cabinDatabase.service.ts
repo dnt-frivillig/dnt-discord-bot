@@ -83,4 +83,8 @@ export class CabinDatabaseService implements OnModuleInit {
       );
     }
   }
+
+  public async getNewCabins(after: Date) {
+    return await this.cabinDatabaseApi.getNewCabins(after);
+  }
 }

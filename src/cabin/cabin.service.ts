@@ -44,4 +44,8 @@ export class CabinService {
 
     return null;
   }
+
+  public async getNewCabins(after: Date) {
+    return await this.cabinDatabaseService.getNewCabins(after);
+  }
 }

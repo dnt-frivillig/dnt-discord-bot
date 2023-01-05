@@ -5,6 +5,7 @@ import {
   PostgrestResponse,
   SupabaseClient,
 } from '@supabase/supabase-js';
+import { DbService } from 'src/db/db.service';
 import { CabinSummary } from './cabinDatabase.interface';
 
 @Injectable()
@@ -12,7 +13,10 @@ export class CabinDatabaseApi {
   private supabase: SupabaseClient;
   private CABIN_REQUEST_DEFAULT_LIMIT = 1000; // TODO 1000 is an artificial limit to prevent limit undefined
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly dbService: DbService,
+  ) {
     const supabaseUrl = this.configService.getOrThrow('SUPABASE_URL');
     const supabaseKey = this.configService.getOrThrow('SUPABASE_KEY');
     this.supabase = createClient(supabaseUrl, supabaseKey);
@@ -43,5 +47,13 @@ export class CabinDatabaseApi {
     limit = this.CABIN_REQUEST_DEFAULT_LIMIT,
   ): Promise<PostgrestResponse<CabinSummary>> {
     return await this.supabase.rpc('get_random_cabins').limit(limit);
+  }
+
+  public async getNewCabins(after: Date) {
+    return this.dbService.prisma.cabins.findMany({
+      where: {
+        createdAt: { gt: after },
+      },
+    });
   }
 }
